@@ -25,13 +25,17 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Hydrophobicity
   other-modules:
       Paths_biocadtesttak
   hs-source-dirs:
       src
   build-depends:
       base >=4.7 && <5
+    , cobot-io
+    , linear
+    , text
+    , vector
   default-language: Haskell2010
 
 executable biocadtesttak-exe
@@ -44,6 +48,10 @@ executable biocadtesttak-exe
   build-depends:
       base >=4.7 && <5
     , biocadtesttak
+    , cobot-io
+    , linear
+    , text
+    , vector
   default-language: Haskell2010
 
 test-suite biocadtesttak-test
@@ -57,4 +65,8 @@ test-suite biocadtesttak-test
   build-depends:
       base >=4.7 && <5
     , biocadtesttak
+    , cobot-io
+    , linear
+    , text
+    , vector
   default-language: Haskell2010

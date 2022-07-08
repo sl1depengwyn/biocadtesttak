@@ -1,6 +1,15 @@
 module Main where
 
-import Lib
+import Hydrophobicity (run)
+import System.Environment (getArgs, getProgName)
+import System.Exit (exitFailure)
 
 main :: IO ()
-main = someFunc
+main = do
+  args <- getArgs
+  progName <- getProgName
+  case args of
+    [filename] -> run filename
+    _ -> do
+      putStrLn $ "Usage: " <> progName <> " <.pdb filename>"
+      exitFailure
