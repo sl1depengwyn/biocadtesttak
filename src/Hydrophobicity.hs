@@ -19,24 +19,27 @@ run path = do
   mbPdb <- fromFilePDB path
   case mbPdb of
     Left txt -> putStrLn (T.unpack txt)
-    Right (wrns, pdb) -> do
-      if V.length (models pdb) < 1
-        then putStrLn "ERROR: No models in PDB"
-        else
-          putStrLn $
-          prettyReport $
-          groupBy
-          (\x y -> x `distance` y < distanceBetweenAA) $
-          sort (V.toList (V.concatMap (V.map pointOfAtom . casHydrophobicOnTheSurface) (V.head (models pdb))))
+    Right (wrns, pdb) -> maybe (putStrLn "ERROR: No models in PDB") (putStrLn . prettyReport) (findHydrophobicities pdb)
+
+prettyReport :: [[V3 Float]] -> String
+prettyReport areas = "----------\n" <> unlines (map printArea areas)
+  where
+    printArea area = "x\ty\tz\n" <> unlines (map printEntry area) <> "----------"
+    printEntry (V3 x y z) = mconcat [show x, "\t", show y, "\t", show z, "\n"]
 
 distanceBetweenAA :: Float
 distanceBetweenAA = 4
 
-prettyReport :: [[V3 Float]] -> String
-prettyReport areas = "----------" <> unlines (map printArea areas)
+findHydrophobicities :: PDB -> Maybe [[V3 Float]]
+findHydrophobicities pdb
+  | V.length (models pdb) < 1 = Nothing
+  | otherwise =
+    Just $
+      groupBy
+        (\x y -> x `distance` y < distanceBetweenAA)
+        $ sort (V.toList (V.concatMap (V.map pointOfAtom . casHydrophobicOnTheSurface) model))
   where
-    printArea area = "x\ty\tz\n" <> unlines (map printEntry area) <> "----------"
-    printEntry (V3 x y z) = mconcat [show x, "\t", show y, "\t", show z, "\n"]
+    model = V.head (models pdb)
 
 -- Temperature factors are a measure of our confidence in the location of each atom.
 -- https://pdb101.rcsb.org/learn/guide-to-understanding-pdb-data/dealing-with-coordinates
